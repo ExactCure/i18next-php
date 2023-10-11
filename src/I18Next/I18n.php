@@ -23,17 +23,6 @@ const RTL_LANGUAGES = [
     'yi', 'hbo', 'men', 'xmn', 'fa', 'jpr', 'peo', 'pes', 'prs', 'dv', 'sam',
 ];
 
-const STORE_API = [
-    'getResource',
-    'addResource',
-    'addResources',
-    'addResourceBundle',
-    'removeResourceBundle',
-    'hasResourceBundle',
-    'getResourceBundle',
-    'getDataByLanguage'
-];
-
 /**
  * Class I18n
  *
@@ -42,14 +31,6 @@ const STORE_API = [
  * To use either create a new instance yourself, or simply initialize it globally via I18n::get() (suggested)
  *
  * @package Pkly\I18Next
- * @method mixed getResource(string $lng, string $ns, $key = null, array $options = [])
- * @method void addResource(string $lng, $ns, $key, $value, array $options = ['silent' => false])
- * @method void addResources(string $lng, $ns, array $resources, array $options = ['silent' => false])
- * @method void addResourceBundle(string $lng, $ns, $resources, bool $deep = false, bool $overwrite = false, array $options = ['silent' => false])
- * @method void removeResourceBundle(string $lng, string $ns)
- * @method bool hasResourceBundle(string $lng, string $ns)
- * @method mixed getResourceBundle(string $lng, ?string $ns = null)
- * @method mixed getDataByLanguage(string $lng)
  */
 class I18n {
     /**
@@ -185,14 +166,6 @@ class I18n {
             $this->_translator = new Translator($this->_services, $this->_options);
 
             // TODO: Init external modules here
-        }
-
-        // append api
-        foreach (STORE_API as $fcName) {
-            unset($this->{$fcName});
-            $this->{$fcName} = function (...$args) use ($fcName) {
-                return call_user_func([$this->_store, $fcName], ...$args);
-            };
         }
 
         $this->changeLanguage($this->_options['lng']);
@@ -453,5 +426,45 @@ class I18n {
         $clone = clone $this;
         $clone->_options = array_merge($clone->_options, ['isClone' => true]);
         return $clone;
+    }
+
+    public function getResource(string $lng, string $ns, $key = null, array $options = []): mixed
+    {
+        return $this->_store->getResource($lng, $ns, $key, $options);
+    }
+
+    public function addResource(string $lng, $ns, $key, $value, array $options = ['silent' => false]): void
+    {
+        $this->_store->addResource($lng, $ns, $key, $value, $options);
+    }
+
+    public function addResources(string $lng, $ns, array $resources, array $options = ['silent' => false]): void
+    {
+        $this->_store->addResources($lng,$ns, $resources, $options);
+    }
+
+    public function addResourceBundle(string $lng, $ns, $resources, bool $deep = false, bool $overwrite = false, array $options = ['silent' => false]): void
+    {
+        $this->_store->addResourceBundle($lng, $ns, $resources, $deep, $overwrite, $options);
+    }
+
+    public function removeResourceBundle(string $lng, string $ns): void
+    {
+        $this->_store->removeResourceBundle($lng, $ns);
+    }
+
+    public function hasResourceBundle(string $lng, string $ns): bool
+    {
+        return $this->_store->hasResourceBundle($lng, $ns);
+    }
+
+    public function getResourceBundle(string $lng, ?string $ns = null): mixed
+    {
+        return $this->_store->getResourceBundle($lng, $ns);
+    }
+
+    public function getDataByLanguage(string $lng): mixed
+    {
+        return $this->_store->getDataByLanguage($lng);
     }
 }
